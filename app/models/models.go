@@ -455,3 +455,21 @@ type PurgeQueueRequest struct {
 }
 
 func (r *PurgeQueueRequest) SetAttributesFromForm(values url.Values) {}
+
+/*** SNS */
+
+func NewCreateTopicRequest() *CreateTopicRequest {
+	return &CreateTopicRequest{}
+}
+
+// Ref: https://docs.aws.amazon.com/sns/latest/api/API_CreateTopic.html
+type CreateTopicRequest struct {
+	Name string `json:"Name" schema:"Name"`
+
+	// Goaws unsupports below properties currently.
+	DataProtectionPolicy string            `json:"DataProtectionPolicy" schema:"DataProtectionPolicy"`
+	Attributes           map[string]string `json:"Attributes" schema:"Attributes"`
+	Tags                 map[string]string `json:"Tags" schema:"Tags"`
+}
+
+func (r *CreateTopicRequest) SetAttributesFromForm(values url.Values) {}

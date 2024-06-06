@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Admiral-Piett/goaws/app/interfaces"
 	"github.com/Admiral-Piett/goaws/app/models"
 
 	"bytes"
@@ -51,6 +52,7 @@ func init() {
 	app.SnsErrors["TopicExists"] = err3
 	err4 := app.SnsErrorType{HttpError: http.StatusBadRequest, Type: "InvalidParameter", Code: "AWS.SimpleNotificationService.ValidationError", Message: "The input fails to satisfy the constraints specified by an AWS service."}
 	app.SnsErrors["ValidationError"] = err4
+	app.SnsErrors[ErrInvalidParameterValue.Type] = *ErrInvalidParameterValue
 	PrivateKEY, PemKEY, _ = createPemFile()
 }
 
@@ -107,27 +109,6 @@ func ListTopics(w http.ResponseWriter, req *http.Request) {
 		respStruct.Result.Topics.Member = append(respStruct.Result.Topics.Member, ta)
 	}
 
-	SendResponseBack(w, req, respStruct, content)
-}
-
-func CreateTopic(w http.ResponseWriter, req *http.Request) {
-	content := req.FormValue("ContentType")
-	topicName := req.FormValue("Name")
-	topicArn := ""
-	if _, ok := app.SyncTopics.Topics[topicName]; ok {
-		topicArn = app.SyncTopics.Topics[topicName].Arn
-	} else {
-		topicArn = "arn:aws:sns:" + app.CurrentEnvironment.Region + ":" + app.CurrentEnvironment.AccountID + ":" + topicName
-
-		log.Println("Creating Topic:", topicName)
-		topic := &app.Topic{Name: topicName, Arn: topicArn}
-		topic.Subscriptions = make([]*app.Subscription, 0, 0)
-		app.SyncTopics.Lock()
-		app.SyncTopics.Topics[topicName] = topic
-		app.SyncTopics.Unlock()
-	}
-	uuid, _ := common.NewUUID()
-	respStruct := app.CreateTopicResponse{"http://queue.amazonaws.com/doc/2012-11-05/", app.CreateTopicResult{TopicArn: topicArn}, app.ResponseMetadata{RequestId: uuid}}
 	SendResponseBack(w, req, respStruct, content)
 }
 
@@ -799,4 +780,13 @@ func SendResponseBack(w http.ResponseWriter, req *http.Request, respStruct inter
 			log.Printf("error: %v\n", err)
 		}
 	}
+}
+
+func createErrorResponseV1(err string) (int, interfaces.AbstractResponseBody) {
+	er := app.SnsErrors[err]
+	respStruct := models.ErrorResponse{
+		Result:    models.ErrorResult{Type: er.Type, Code: er.Code, Message: er.Message},
+		RequestId: "00000000-0000-0000-0000-000000000000", // TODO - fix
+	}
+	return er.HttpError, respStruct
 }

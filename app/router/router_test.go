@@ -260,6 +260,7 @@ func TestActionHandler_v1_xml(t *testing.T) {
 func TestActionHandler_v0_xml(t *testing.T) {
 	defer func() {
 		routingTableV1 = map[string]func(r *http.Request) (int, interfaces.AbstractResponseBody){
+			// SQS
 			"CreateQueue":             sqs.CreateQueueV1,
 			"ListQueues":              sqs.ListQueuesV1,
 			"GetQueueAttributes":      sqs.GetQueueAttributesV1,
@@ -269,6 +270,9 @@ func TestActionHandler_v0_xml(t *testing.T) {
 			"DeleteMessage":           sqs.DeleteMessageV1,
 			"ChangeMessageVisibility": sqs.ChangeMessageVisibilityV1,
 			"PurgeQueue":              sqs.PurgeQueueV1,
+
+			// SNS
+			"CreateTopic": sns.CreateTopicV1,
 		}
 		routingTable = map[string]http.HandlerFunc{
 			// SQS
@@ -279,7 +283,6 @@ func TestActionHandler_v0_xml(t *testing.T) {
 
 			// SNS
 			"ListTopics":                sns.ListTopics,
-			"CreateTopic":               sns.CreateTopic,
 			"DeleteTopic":               sns.DeleteTopic,
 			"Subscribe":                 sns.Subscribe,
 			"SetSubscriptionAttributes": sns.SetSubscriptionAttributes,

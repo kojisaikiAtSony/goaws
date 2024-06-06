@@ -29,7 +29,7 @@ func TestCreateTopicV1_success(t *testing.T) {
 	}
 
 	// No topic yet
-	assert.Equal(t, len(app.SyncTopics.Topics), 0)
+	assert.Equal(t, 0, len(app.SyncTopics.Topics))
 
 	// Request
 	_, r := utils.GenerateRequestInfo("POST", "/", nil, true)
@@ -42,7 +42,7 @@ func TestCreateTopicV1_success(t *testing.T) {
 	assert.Contains(t, createTopicResponse.Result.TopicArn, "arn:aws:sns:")
 	assert.Contains(t, createTopicResponse.Result.TopicArn, "new-topic-1")
 	// 1 topic there
-	assert.Equal(t, len(app.SyncTopics.Topics), 1)
+	assert.Equal(t, 1, len(app.SyncTopics.Topics))
 }
 func TestCreateTopicV1_existant_topic(t *testing.T) {
 	app.CurrentEnvironment = fixtures.LOCAL_ENVIRONMENT
@@ -67,7 +67,7 @@ func TestCreateTopicV1_existant_topic(t *testing.T) {
 		Arn:  "arn:aws:sns:us-east-1:123456789012:new-topic-1",
 	}
 	app.SyncTopics.Topics["new-topic-1"] = topic
-	assert.Equal(t, len(app.SyncTopics.Topics), 1)
+	assert.Equal(t, 1, len(app.SyncTopics.Topics))
 
 	// Reques
 	_, r := utils.GenerateRequestInfo("POST", "/", nil, true)
@@ -77,9 +77,9 @@ func TestCreateTopicV1_existant_topic(t *testing.T) {
 	assert.Equal(t, http.StatusOK, status)
 	createTopicResponse, ok := response.(models.CreateTopicResponse)
 	assert.True(t, ok)
-	assert.Equal(t, createTopicResponse.Result.TopicArn, "arn:aws:sns:us-east-1:123456789012:new-topic-1") // Same with existant topic
+	assert.Equal(t, "arn:aws:sns:us-east-1:123456789012:new-topic-1", createTopicResponse.Result.TopicArn) // Same with existant topic
 	// No additional topic
-	assert.Equal(t, len(app.SyncTopics.Topics), 1)
+	assert.Equal(t, 1, len(app.SyncTopics.Topics))
 }
 
 func TestCreateTopicV1_request_transformer_error(t *testing.T) {

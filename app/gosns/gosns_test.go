@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/Admiral-Piett/goaws/app"
 	"github.com/Admiral-Piett/goaws/app/common"
@@ -57,6 +58,13 @@ func TestPublishhandler_POST_SendMessage(t *testing.T) {
 	form.Add("Message", "TestMessage1")
 	req.PostForm = form
 
+	// Prepare existant topic
+	topic := &app.Topic{
+		Name: "UnitTestTopic1",
+		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
+	}
+	app.SyncTopics.Topics["UnitTestTopic1"] = topic
+
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Publish)
@@ -77,6 +85,9 @@ func TestPublishhandler_POST_SendMessage(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
 	}
+
+	// Clear topic
+	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestPublishHandler_POST_FilterPolicyRejectsTheMessage(t *testing.T) {
@@ -236,6 +247,13 @@ func TestSubscribehandler_POST_Success(t *testing.T) {
 	form.Add("Endpoint", "http://localhost:4100/queue/noqueue1")
 	req.PostForm = form
 
+	// Prepare existant topic
+	topic := &app.Topic{
+		Name: "UnitTestTopic1",
+		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
+	}
+	app.SyncTopics.Topics["UnitTestTopic1"] = topic
+
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Subscribe)
@@ -256,6 +274,9 @@ func TestSubscribehandler_POST_Success(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
 	}
+
+	// Clear topic
+	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestSubscribehandler_HTTP_POST_Success(t *testing.T) {
@@ -283,6 +304,13 @@ func TestSubscribehandler_HTTP_POST_Success(t *testing.T) {
 	form.Add("Protocol", "http")
 	form.Add("Endpoint", ts.URL+"/sns_post")
 	req.PostForm = form
+
+	// Prepare existant topic
+	topic := &app.Topic{
+		Name: "UnitTestTopic1",
+		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
+	}
+	app.SyncTopics.Topics["UnitTestTopic1"] = topic
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -313,6 +341,9 @@ func TestSubscribehandler_HTTP_POST_Success(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatal("http sns handler must be called")
 	}
+
+	// Clear topic
+	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
@@ -327,6 +358,13 @@ func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
 	form.Add("TopicArn", "arn:aws:sns:local:000000000000:UnitTestTopic1")
 	form.Add("Message", "TestMessage1")
 	req.PostForm = form
+
+	// Prepare existant topic
+	topic := &app.Topic{
+		Name: "UnitTestTopic1",
+		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
+	}
+	app.SyncTopics.Topics["UnitTestTopic1"] = topic
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -348,6 +386,9 @@ func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
 	}
+
+	// Clear topic
+	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestListSubscriptionByTopicResponse_No_Owner(t *testing.T) {
@@ -365,6 +406,23 @@ func TestListSubscriptionByTopicResponse_No_Owner(t *testing.T) {
 	form := url.Values{}
 	form.Add("TopicArn", "arn:aws:sns:local:000000000000:UnitTestTopic1")
 	req.PostForm = form
+
+	// Prepare existant topic
+	topic := &app.Topic{
+		Name: "UnitTestTopic1",
+		Arn:  "arn:aws:sns:local:100010001000:UnitTestTopic1",
+		Subscriptions: []*app.Subscription{
+			{
+				TopicArn:        "",
+				Protocol:        "",
+				SubscriptionArn: "",
+				EndPoint:        "",
+				Raw:             false,
+				FilterPolicy:    &app.FilterPolicy{},
+			},
+		},
+	}
+	app.SyncTopics.Topics["UnitTestTopic1"] = topic
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -386,6 +444,9 @@ func TestListSubscriptionByTopicResponse_No_Owner(t *testing.T) {
 		t.Errorf("handler returned empty owner for subscription member: got %v want %v",
 			rr.Body.String(), expected)
 	}
+
+	// Clear topic
+	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestListSubscriptionsResponse_No_Owner(t *testing.T) {
@@ -435,9 +496,15 @@ func TestDeleteTopichandler_POST_Success(t *testing.T) {
 	}
 
 	form := url.Values{}
-	form.Add("TopicArn", "arn:aws:sns:local:000000000000:UnitTestTopic1")
-	form.Add("Message", "TestMessage1")
+	form.Add("TopicArn", "arn:aws:sns:local:000000000000:UnitTestTopic2")
 	req.PostForm = form
+
+	// Prepare existant topic
+	topic := &app.Topic{
+		Name: "UnitTestTopic2",
+		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic2",
+	}
+	app.SyncTopics.Topics["UnitTestTopic2"] = topic
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -465,6 +532,10 @@ func TestDeleteTopichandler_POST_Success(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
 	}
+
+	// Target topic should be disappeared
+	_, ok := app.SyncTopics.Topics["UnitTestTopic2"]
+	assert.False(t, ok)
 }
 
 func TestGetSubscriptionAttributesHandler_POST_Success(t *testing.T) {

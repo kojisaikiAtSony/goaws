@@ -44,14 +44,9 @@ func init() {
 	TOPIC_DATA = make(map[string]*pendingConfirm)
 
 	app.SnsErrors = make(map[string]app.SnsErrorType)
-	err1 := app.SnsErrorType{HttpError: http.StatusBadRequest, Type: "Not Found", Code: "AWS.SimpleNotificationService.NonExistentTopic", Message: "The specified topic does not exist for this wsdl version."}
-	app.SnsErrors["TopicNotFound"] = err1
-	err2 := app.SnsErrorType{HttpError: http.StatusBadRequest, Type: "Not Found", Code: "AWS.SimpleNotificationService.NonExistentSubscription", Message: "The specified subscription does not exist for this wsdl version."}
-	app.SnsErrors["SubscriptionNotFound"] = err2
-	err3 := app.SnsErrorType{HttpError: http.StatusBadRequest, Type: "Duplicate", Code: "AWS.SimpleNotificationService.TopicAlreadyExists", Message: "The specified topic already exists."}
-	app.SnsErrors["TopicExists"] = err3
-	err4 := app.SnsErrorType{HttpError: http.StatusBadRequest, Type: "InvalidParameter", Code: "AWS.SimpleNotificationService.ValidationError", Message: "The input fails to satisfy the constraints specified by an AWS service."}
-	app.SnsErrors["ValidationError"] = err4
+	app.SnsErrors["TopicNotFound"] = *ErrNonExistentTopic
+	app.SnsErrors["SubscriptionNotFound"] = *ErrNonExistentSubscription
+	app.SnsErrors["TopicExists"] = *ErrTopicAlreadyExists
 	app.SnsErrors[ErrInvalidParameterValue.Type] = *ErrInvalidParameterValue
 	PrivateKEY, PemKEY, _ = createPemFile()
 }

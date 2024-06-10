@@ -64,6 +64,10 @@ func TestPublishhandler_POST_SendMessage(t *testing.T) {
 		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
+	defer func() {
+		// Clear topic
+		delete(app.SyncTopics.Topics, "UnitTestTopic1")
+	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -85,9 +89,6 @@ func TestPublishhandler_POST_SendMessage(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
 	}
-
-	// Clear topic
-	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestPublishHandler_POST_FilterPolicyRejectsTheMessage(t *testing.T) {
@@ -253,6 +254,10 @@ func TestSubscribehandler_POST_Success(t *testing.T) {
 		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
+	defer func() {
+		// Clear topic
+		delete(app.SyncTopics.Topics, "UnitTestTopic1")
+	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -274,9 +279,6 @@ func TestSubscribehandler_POST_Success(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
 	}
-
-	// Clear topic
-	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestSubscribehandler_HTTP_POST_Success(t *testing.T) {
@@ -311,6 +313,10 @@ func TestSubscribehandler_HTTP_POST_Success(t *testing.T) {
 		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
+	defer func() {
+		// Clear topic
+		delete(app.SyncTopics.Topics, "UnitTestTopic1")
+	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -341,9 +347,6 @@ func TestSubscribehandler_HTTP_POST_Success(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatal("http sns handler must be called")
 	}
-
-	// Clear topic
-	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
@@ -365,6 +368,10 @@ func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
 		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
+	defer func() {
+		// Clear topic
+		delete(app.SyncTopics.Topics, "UnitTestTopic1")
+	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -386,9 +393,6 @@ func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
 	}
-
-	// Clear topic
-	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestListSubscriptionByTopicResponse_No_Owner(t *testing.T) {
@@ -423,6 +427,10 @@ func TestListSubscriptionByTopicResponse_No_Owner(t *testing.T) {
 		},
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
+	defer func() {
+		// Clear topic
+		delete(app.SyncTopics.Topics, "UnitTestTopic1")
+	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -444,9 +452,6 @@ func TestListSubscriptionByTopicResponse_No_Owner(t *testing.T) {
 		t.Errorf("handler returned empty owner for subscription member: got %v want %v",
 			rr.Body.String(), expected)
 	}
-
-	// Clear topic
-	delete(app.SyncTopics.Topics, "UnitTestTopic1")
 }
 
 func TestListSubscriptionsResponse_No_Owner(t *testing.T) {

@@ -26,7 +26,7 @@ func CreateTopicV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 	} else {
 		topicArn = "arn:aws:sns:" + app.CurrentEnvironment.Region + ":" + app.CurrentEnvironment.AccountID + ":" + topicName
 
-		log.Println("Creating Topic:", topicName)
+		log.Debug("Creating Topic:", topicName)
 		topic := &app.Topic{Name: topicName, Arn: topicArn}
 		topic.Subscriptions = make([]*app.Subscription, 0, 0)
 		app.SyncTopics.Lock()
@@ -36,7 +36,7 @@ func CreateTopicV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 
 	uuid, _ := common.NewUUID()
 	respStruct := models.CreateTopicResponse{
-		Xmlns: "http://queue.amazonaws.com/doc/2012-11-05/",
+		Xmlns: models.BASE_XMLNS,
 		Result: models.CreateTopicResult{
 			TopicArn: topicArn,
 		},

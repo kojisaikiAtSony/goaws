@@ -19,8 +19,9 @@ func TestCreateTopicV1_success(t *testing.T) {
 		utils.REQUEST_TRANSFORMER = utils.TransformRequest
 	}()
 
+	targetTopicName := "new-topic-1"
 	request_success := models.CreateTopicRequest{
-		Name: "new-topic-1",
+		Name: targetTopicName,
 	}
 	utils.REQUEST_TRANSFORMER = func(resultingStruct interfaces.AbstractRequestBody, req *http.Request, emptyRequestValid bool) (success bool) {
 		v := resultingStruct.(*models.CreateTopicRequest)
@@ -40,10 +41,11 @@ func TestCreateTopicV1_success(t *testing.T) {
 	createTopicResponse, ok := response.(models.CreateTopicResponse)
 	assert.True(t, ok)
 	assert.Contains(t, createTopicResponse.Result.TopicArn, "arn:aws:sns:")
-	assert.Contains(t, createTopicResponse.Result.TopicArn, "new-topic-1")
+	assert.Contains(t, createTopicResponse.Result.TopicArn, targetTopicName)
 	// 1 topic there
 	assert.Equal(t, 1, len(app.SyncTopics.Topics))
 }
+
 func TestCreateTopicV1_existant_topic(t *testing.T) {
 	app.CurrentEnvironment = fixtures.LOCAL_ENVIRONMENT
 	defer func() {
@@ -51,9 +53,11 @@ func TestCreateTopicV1_existant_topic(t *testing.T) {
 		utils.REQUEST_TRANSFORMER = utils.TransformRequest
 	}()
 
+	targetTopicName := "new-topic-1"
+
 	// Same topic name with existant topic
 	request_success := models.CreateTopicRequest{
-		Name: "new-topic-1",
+		Name: targetTopicName,
 	}
 	utils.REQUEST_TRANSFORMER = func(resultingStruct interfaces.AbstractRequestBody, req *http.Request, emptyRequestValid bool) (success bool) {
 		v := resultingStruct.(*models.CreateTopicRequest)
@@ -62,11 +66,12 @@ func TestCreateTopicV1_existant_topic(t *testing.T) {
 	}
 
 	// Prepare existant topic
+	targetTopicArn := "arn:aws:sns:us-east-1:123456789012:" + targetTopicName
 	topic := &app.Topic{
-		Name: "new-topic-1",
-		Arn:  "arn:aws:sns:us-east-1:123456789012:new-topic-1",
+		Name: targetTopicName,
+		Arn:  targetTopicArn,
 	}
-	app.SyncTopics.Topics["new-topic-1"] = topic
+	app.SyncTopics.Topics[targetTopicName] = topic
 	assert.Equal(t, 1, len(app.SyncTopics.Topics))
 
 	// Reques
@@ -77,7 +82,7 @@ func TestCreateTopicV1_existant_topic(t *testing.T) {
 	assert.Equal(t, http.StatusOK, status)
 	createTopicResponse, ok := response.(models.CreateTopicResponse)
 	assert.True(t, ok)
-	assert.Equal(t, "arn:aws:sns:us-east-1:123456789012:new-topic-1", createTopicResponse.Result.TopicArn) // Same with existant topic
+	assert.Equal(t, targetTopicArn, createTopicResponse.Result.TopicArn) // Same with existant topic
 	// No additional topic
 	assert.Equal(t, 1, len(app.SyncTopics.Topics))
 }

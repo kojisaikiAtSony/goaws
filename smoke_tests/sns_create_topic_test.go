@@ -33,7 +33,7 @@ func Test_CreateTopicV1_json_success(t *testing.T) {
 	})
 
 	// Should success
-	assert.Contains(t, *sdkResponse.TopicArn, "new-topic-1")
+	assert.Contains(t, *sdkResponse.TopicArn, topicName)
 	assert.Nil(t, err)
 
 	// Get created topic
@@ -53,7 +53,7 @@ func Test_CreateTopicV1_json_success(t *testing.T) {
 	r2 := app.ListTopicsResponse{}
 	xml.Unmarshal([]byte(r), &r2)
 	assert.Equal(t, 1, len(r2.Result.Topics.Member))
-	assert.Contains(t, r2.Result.Topics.Member[0].TopicArn, "new-topic-1")
+	assert.Contains(t, r2.Result.Topics.Member[0].TopicArn, topicName)
 }
 
 func Test_CreateTopicV1_json_existant_topic(t *testing.T) {
@@ -71,7 +71,7 @@ func Test_CreateTopicV1_json_existant_topic(t *testing.T) {
 	sdkResponse, _ := snsClient.CreateTopic(context.TODO(), &sns.CreateTopicInput{
 		Name: &topicName,
 	})
-	assert.Contains(t, *sdkResponse.TopicArn, "new-topic-1")
+	assert.Contains(t, *sdkResponse.TopicArn, topicName)
 	assert.Nil(t, err)
 
 	// Target test: create topic with same name
@@ -80,7 +80,7 @@ func Test_CreateTopicV1_json_existant_topic(t *testing.T) {
 	})
 
 	// Should success
-	assert.Contains(t, *sdkResponse.TopicArn, "new-topic-1")
+	assert.Contains(t, *sdkResponse.TopicArn, topicName)
 	assert.Nil(t, err)
 
 	// Topic should not be duplicated
@@ -100,7 +100,7 @@ func Test_CreateTopicV1_json_existant_topic(t *testing.T) {
 	r2 := app.ListTopicsResponse{}
 	xml.Unmarshal([]byte(r), &r2)
 	assert.Equal(t, 1, len(r2.Result.Topics.Member))
-	assert.Contains(t, r2.Result.Topics.Member[0].TopicArn, "new-topic-1")
+	assert.Contains(t, r2.Result.Topics.Member[0].TopicArn, topicName)
 }
 
 func Test_CreateTopicV1_json_add_new_topic(t *testing.T) {
@@ -118,7 +118,7 @@ func Test_CreateTopicV1_json_add_new_topic(t *testing.T) {
 	sdkResponse, _ := snsClient.CreateTopic(context.TODO(), &sns.CreateTopicInput{
 		Name: &topicName,
 	})
-	assert.Contains(t, *sdkResponse.TopicArn, "new-topic-1")
+	assert.Contains(t, *sdkResponse.TopicArn, topicName)
 	assert.Nil(t, err)
 
 	// Target test: create topic with same name
@@ -128,7 +128,7 @@ func Test_CreateTopicV1_json_add_new_topic(t *testing.T) {
 	})
 
 	// Should success
-	assert.Contains(t, *sdkResponse.TopicArn, "new-topic-2")
+	assert.Contains(t, *sdkResponse.TopicArn, topicName2)
 	assert.Nil(t, err)
 
 	// Number of topic should be 2
@@ -158,6 +158,7 @@ func Test_CreateTopicV1_xml_success(t *testing.T) {
 	}()
 
 	// Target test
+	topicName := "new-topic-1"
 	createTopicsXML := struct {
 		Action  string `xml:"Action"`
 		Version string `xml:"Version"`
@@ -165,7 +166,7 @@ func Test_CreateTopicV1_xml_success(t *testing.T) {
 	}{
 		Action:  "CreateTopic",
 		Version: "2012-11-05",
-		Name:    "new-topic-1",
+		Name:    topicName,
 	}
 	e := httpexpect.Default(t, server.URL)
 	r := e.POST("/").
@@ -175,7 +176,7 @@ func Test_CreateTopicV1_xml_success(t *testing.T) {
 		Body().Raw()
 	r2 := models.CreateTopicResponse{}
 	xml.Unmarshal([]byte(r), &r2)
-	assert.Contains(t, r2.Result.TopicArn, "new-topic-1")
+	assert.Contains(t, r2.Result.TopicArn, topicName)
 
 	// Get created topic
 	listTopicsXML := struct {
@@ -193,7 +194,7 @@ func Test_CreateTopicV1_xml_success(t *testing.T) {
 	r3 := app.ListTopicsResponse{}
 	xml.Unmarshal([]byte(r), &r3)
 	assert.Equal(t, 1, len(r3.Result.Topics.Member))
-	assert.Contains(t, r3.Result.Topics.Member[0].TopicArn, "new-topic-1")
+	assert.Contains(t, r3.Result.Topics.Member[0].TopicArn, topicName)
 }
 
 func Test_CreateTopicV1_xml_existant_topic(t *testing.T) {
@@ -203,6 +204,8 @@ func Test_CreateTopicV1_xml_existant_topic(t *testing.T) {
 		utils.ResetResources()
 	}()
 
+	topicName := "new-topic-1"
+
 	// Prepare existant topic
 	createTopicsXML := struct {
 		Action  string `xml:"Action"`
@@ -211,7 +214,7 @@ func Test_CreateTopicV1_xml_existant_topic(t *testing.T) {
 	}{
 		Action:  "CreateTopic",
 		Version: "2012-11-05",
-		Name:    "new-topic-1",
+		Name:    topicName,
 	}
 	e := httpexpect.Default(t, server.URL)
 	r := e.POST("/").
@@ -221,7 +224,7 @@ func Test_CreateTopicV1_xml_existant_topic(t *testing.T) {
 		Body().Raw()
 	r2 := models.CreateTopicResponse{}
 	xml.Unmarshal([]byte(r), &r2)
-	assert.Contains(t, r2.Result.TopicArn, "new-topic-1")
+	assert.Contains(t, r2.Result.TopicArn, topicName)
 
 	// Target test: create topic with same name
 	r = e.POST("/").
@@ -231,7 +234,7 @@ func Test_CreateTopicV1_xml_existant_topic(t *testing.T) {
 		Body().Raw()
 	r2 = models.CreateTopicResponse{}
 	xml.Unmarshal([]byte(r), &r2)
-	assert.Contains(t, r2.Result.TopicArn, "new-topic-1")
+	assert.Contains(t, r2.Result.TopicArn, topicName)
 
 	// Topic should not be duplicated
 	listTopicsXML := struct {
@@ -249,5 +252,5 @@ func Test_CreateTopicV1_xml_existant_topic(t *testing.T) {
 	r3 := app.ListTopicsResponse{}
 	xml.Unmarshal([]byte(r), &r3)
 	assert.Equal(t, 1, len(r3.Result.Topics.Member))
-	assert.Contains(t, r3.Result.Topics.Member[0].TopicArn, "new-topic-1")
+	assert.Contains(t, r3.Result.Topics.Member[0].TopicArn, topicName)
 }

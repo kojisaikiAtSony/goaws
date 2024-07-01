@@ -419,10 +419,10 @@ func TestDeleteTopichandler_POST_Success(t *testing.T) {
 
 	// Prepare existant topic
 	topic := &app.Topic{
-		Name: "UnitTestTopic2",
-		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic2",
+		Name: "local-topic1",
+		Arn:  "arn:aws:sns:local:000000000000:local-topic1",
 	}
-	app.SyncTopics.Topics["UnitTestTopic2"] = topic
+	app.SyncTopics.Topics["local-topic1"] = topic
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -452,7 +452,7 @@ func TestDeleteTopichandler_POST_Success(t *testing.T) {
 	}
 
 	// Target topic should be disappeared
-	_, ok := app.SyncTopics.Topics["UnitTestTopic2"]
+	_, ok := app.SyncTopics.Topics["local-topic1"]
 	assert.False(t, ok)
 }
 

@@ -17,7 +17,7 @@ func CreateTopicV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 	ok := utils.REQUEST_TRANSFORMER(requestBody, req, false)
 	if !ok {
 		log.Error("Invalid Request - CreateTopicV1")
-		return createErrorResponseV1(models.SnsErrInvalidParameterValue.Type)
+		return utils.CreateErrorResponseV1("InvalidParameterValue", false)
 	}
 
 	topicName := requestBody.Name

@@ -671,7 +671,7 @@ func SendResponseBack(w http.ResponseWriter, req *http.Request, respStruct inter
 }
 
 func createErrorResponseV1(err string) (int, interfaces.AbstractResponseBody) {
-	er := app.SnsErrors[err]
+	er := models.SnsErrors[err]
 	respStruct := models.ErrorResponse{
 		Result:    models.ErrorResult{Type: er.Type, Code: er.Code, Message: er.Message},
 		RequestId: "00000000-0000-0000-0000-000000000000", // TODO - fix

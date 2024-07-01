@@ -8,6 +8,7 @@ import (
 	"github.com/Admiral-Piett/goaws/app/fixtures"
 	"github.com/Admiral-Piett/goaws/app/interfaces"
 	"github.com/Admiral-Piett/goaws/app/models"
+	"github.com/Admiral-Piett/goaws/app/test"
 	"github.com/Admiral-Piett/goaws/app/utils"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +16,7 @@ import (
 func TestCreateTopicV1_success(t *testing.T) {
 	app.CurrentEnvironment = fixtures.LOCAL_ENVIRONMENT
 	defer func() {
-		utils.ResetApp()
+		test.ResetApp()
 		utils.REQUEST_TRANSFORMER = utils.TransformRequest
 	}()
 
@@ -33,7 +34,7 @@ func TestCreateTopicV1_success(t *testing.T) {
 	assert.Equal(t, 0, len(app.SyncTopics.Topics))
 
 	// Request
-	_, r := utils.GenerateRequestInfo("POST", "/", nil, true)
+	_, r := test.GenerateRequestInfo("POST", "/", nil, true)
 	status, response := CreateTopicV1(r)
 
 	// Result
@@ -49,7 +50,7 @@ func TestCreateTopicV1_success(t *testing.T) {
 func TestCreateTopicV1_existant_topic(t *testing.T) {
 	app.CurrentEnvironment = fixtures.LOCAL_ENVIRONMENT
 	defer func() {
-		utils.ResetApp()
+		test.ResetApp()
 		utils.REQUEST_TRANSFORMER = utils.TransformRequest
 	}()
 
@@ -75,7 +76,7 @@ func TestCreateTopicV1_existant_topic(t *testing.T) {
 	assert.Equal(t, 1, len(app.SyncTopics.Topics))
 
 	// Reques
-	_, r := utils.GenerateRequestInfo("POST", "/", nil, true)
+	_, r := test.GenerateRequestInfo("POST", "/", nil, true)
 	status, response := CreateTopicV1(r)
 
 	// Result
@@ -90,7 +91,7 @@ func TestCreateTopicV1_existant_topic(t *testing.T) {
 func TestCreateTopicV1_request_transformer_error(t *testing.T) {
 	app.CurrentEnvironment = fixtures.LOCAL_ENVIRONMENT
 	defer func() {
-		utils.ResetApp()
+		test.ResetApp()
 		utils.REQUEST_TRANSFORMER = utils.TransformRequest
 	}()
 
@@ -98,7 +99,7 @@ func TestCreateTopicV1_request_transformer_error(t *testing.T) {
 		return false
 	}
 
-	_, r := utils.GenerateRequestInfo("POST", "/", nil, true)
+	_, r := test.GenerateRequestInfo("POST", "/", nil, true)
 	code, _ := CreateTopicV1(r)
 
 	assert.Equal(t, http.StatusBadRequest, code)

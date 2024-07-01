@@ -13,7 +13,6 @@ import (
 
 	"github.com/Admiral-Piett/goaws/app"
 	"github.com/Admiral-Piett/goaws/app/common"
-	"github.com/Admiral-Piett/goaws/app/utils"
 )
 
 func TestListTopicshandler_POST_NoTopics(t *testing.T) {
@@ -48,7 +47,7 @@ func TestListTopicshandler_POST_NoTopics(t *testing.T) {
 
 func TestPublishhandler_POST_SendMessage(t *testing.T) {
 	defer func() {
-		utils.ResetApp()
+		test.ResetApp()
 	}()
 
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
@@ -237,7 +236,7 @@ func TestPublishHandler_POST_FilterPolicyPassesTheMessage(t *testing.T) {
 
 func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
 	defer func() {
-		utils.ResetApp()
+		test.ResetApp()
 	}()
 
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll

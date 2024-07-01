@@ -22,7 +22,7 @@ func SendMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 	ok := utils.REQUEST_TRANSFORMER(requestBody, req, false)
 	if !ok {
 		log.Error("Invalid Request - SendMessageV1")
-		return createErrorResponseV1(ErrInvalidParameterValue.Type)
+		return utils.CreateErrorResponseV1("InvalidParameterValue", true)
 	}
 	messageBody := requestBody.MessageBody
 	messageGroupID := requestBody.MessageGroupId
@@ -43,13 +43,13 @@ func SendMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 
 	if _, ok := app.SyncQueues.Queues[queueName]; !ok {
 		// Queue does not exist
-		return createErrorResponseV1("QueueNotFound")
+		return utils.CreateErrorResponseV1("QueueNotFound", true)
 	}
 
 	if app.SyncQueues.Queues[queueName].MaximumMessageSize > 0 &&
 		len(messageBody) > app.SyncQueues.Queues[queueName].MaximumMessageSize {
 		// Message size is too big
-		return createErrorResponseV1("MessageTooBig")
+		return utils.CreateErrorResponseV1("MessageTooBig", true)
 	}
 
 	delaySecs := app.SyncQueues.Queues[queueName].DelaySeconds
@@ -88,16 +88,14 @@ func SendMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 	log.Infof("%s: Queue: %s, Message: %s\n", time.Now().Format("2006-01-02 15:04:05"), queueName, msg.MessageBody)
 
 	respStruct := models.SendMessageResponse{
-		Xmlns: "http://queue.amazonaws.com/doc/2012-11-05/",
+		Xmlns: models.BASE_XMLNS,
 		Result: models.SendMessageResult{
 			MD5OfMessageAttributes: msg.MD5OfMessageAttributes,
 			MD5OfMessageBody:       msg.MD5OfMessageBody,
 			MessageId:              msg.Uuid,
 			SequenceNumber:         fifoSeqNumber,
 		},
-		Metadata: app.ResponseMetadata{
-			RequestId: "00000000-0000-0000-0000-000000000000",
-		},
+		Metadata: models.BASE_RESPONSE_METADATA,
 	}
 
 	return http.StatusOK, respStruct

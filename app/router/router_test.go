@@ -23,13 +23,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/Admiral-Piett/goaws/app/utils"
+	"github.com/Admiral-Piett/goaws/app/test"
 )
-
-func TestMain(m *testing.M) {
-	utils.InitializeDecoders()
-	m.Run()
-}
 
 func TestIndexServerhandler_POST_BadRequest(t *testing.T) {
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
@@ -150,7 +145,7 @@ func TestIndexServerhandler_GET_GoodRequest_Pem_cert(t *testing.T) {
 }
 
 func TestEncodeResponse_success_xml(t *testing.T) {
-	w, r := utils.GenerateRequestInfo("POST", "/url", nil, false)
+	w, r := test.GenerateRequestInfo("POST", "/url", nil, false)
 
 	encodeResponse(w, r, http.StatusOK, mocks.BaseResponse{Message: "test"})
 
@@ -162,7 +157,7 @@ func TestEncodeResponse_success_xml(t *testing.T) {
 }
 
 func TestEncodeResponse_success_skips_nil_body_xml(t *testing.T) {
-	w, r := utils.GenerateRequestInfo("POST", "/url", nil, false)
+	w, r := test.GenerateRequestInfo("POST", "/url", nil, false)
 
 	encodeResponse(w, r, http.StatusOK, nil)
 
@@ -171,7 +166,7 @@ func TestEncodeResponse_success_skips_nil_body_xml(t *testing.T) {
 }
 
 func TestEncodeResponse_success_json(t *testing.T) {
-	w, r := utils.GenerateRequestInfo("POST", "/url", nil, true)
+	w, r := test.GenerateRequestInfo("POST", "/url", nil, true)
 
 	encodeResponse(w, r, http.StatusOK, mocks.BaseResponse{Message: "test"})
 
@@ -189,7 +184,7 @@ func TestEncodeResponse_success_skips_malformed_body_json(t *testing.T) {
 	mock.MockGetResult = func() interface{} {
 		return make(chan int)
 	}
-	w, r := utils.GenerateRequestInfo("POST", "/url", nil, true)
+	w, r := test.GenerateRequestInfo("POST", "/url", nil, true)
 
 	encodeResponse(w, r, http.StatusOK, mock)
 
@@ -213,7 +208,7 @@ func TestActionHandler_v1_json(t *testing.T) {
 		"CreateQueue": mockFunction,
 	}
 
-	w, r := utils.GenerateRequestInfo("POST", "/url", nil, true)
+	w, r := test.GenerateRequestInfo("POST", "/url", nil, true)
 	r.Header.Set("X-Amz-Target", "QueueService.CreateQueue")
 
 	actionHandler(w, r)
@@ -242,7 +237,7 @@ func TestActionHandler_v1_xml(t *testing.T) {
 		"CreateQueue": mockFunction,
 	}
 
-	w, r := utils.GenerateRequestInfo("POST", "/url", nil, false)
+	w, r := test.GenerateRequestInfo("POST", "/url", nil, false)
 	form := url.Values{}
 	form.Add("Action", "CreateQueue")
 	r.PostForm = form
@@ -269,22 +264,22 @@ func TestActionHandler_v0_xml(t *testing.T) {
 			"ReceiveMessage":          sqs.ReceiveMessageV1,
 			"DeleteMessage":           sqs.DeleteMessageV1,
 			"ChangeMessageVisibility": sqs.ChangeMessageVisibilityV1,
+			"GetQueueUrl":             sqs.GetQueueUrlV1,
 			"PurgeQueue":              sqs.PurgeQueueV1,
+			"DeleteQueue":             sqs.DeleteQueueV1,
 
 			// SNS
 			"CreateTopic": sns.CreateTopicV1,
+			"Subscribe":   sns.SubscribeV1,
 		}
 		routingTable = map[string]http.HandlerFunc{
 			// SQS
 			"SendMessageBatch":   sqs.SendMessageBatch,
 			"DeleteMessageBatch": sqs.DeleteMessageBatch,
-			"GetQueueUrl":        sqs.GetQueueUrl,
-			"DeleteQueue":        sqs.DeleteQueue,
 
 			// SNS
 			"ListTopics":                sns.ListTopics,
 			"DeleteTopic":               sns.DeleteTopic,
-			"Subscribe":                 sns.Subscribe,
 			"SetSubscriptionAttributes": sns.SetSubscriptionAttributes,
 			"GetSubscriptionAttributes": sns.GetSubscriptionAttributes,
 			"ListSubscriptionsByTopic":  sns.ListSubscriptionsByTopic,
@@ -307,7 +302,7 @@ func TestActionHandler_v0_xml(t *testing.T) {
 		"CreateQueue": mockFunction,
 	}
 
-	w, r := utils.GenerateRequestInfo("POST", "/url", nil, false)
+	w, r := test.GenerateRequestInfo("POST", "/url", nil, false)
 	form := url.Values{}
 	form.Add("Action", "CreateQueue")
 	r.PostForm = form

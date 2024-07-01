@@ -17,7 +17,7 @@ func DeleteMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 	ok := utils.REQUEST_TRANSFORMER(requestBody, req, false)
 	if !ok {
 		log.Error("Invalid Request - DeleteMessageV1")
-		return createErrorResponseV1(ErrInvalidParameterValue.Type)
+		return utils.CreateErrorResponseV1("InvalidParameterValue", true)
 	}
 
 	// Retrieve FormValues required
@@ -50,7 +50,10 @@ func DeleteMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 				delete(app.SyncQueues.Queues[queueName].Duplicates, msg.DeduplicationID)
 
 				// Create, encode/xml and send response
-				respStruct := models.DeleteMessageResponse{"http://queue.amazonaws.com/doc/2012-11-05/", app.ResponseMetadata{RequestId: "00000000-0000-0000-0000-000000000001"}}
+				respStruct := models.DeleteMessageResponse{
+					Xmlns:    models.BASE_XMLNS,
+					Metadata: models.BASE_RESPONSE_METADATA,
+				}
 				return 200, &respStruct
 			}
 		}
@@ -59,5 +62,5 @@ func DeleteMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 		log.Warning("Queue not found")
 	}
 
-	return createErrorResponseV1("MessageDoesNotExist")
+	return utils.CreateErrorResponseV1("MessageDoesNotExist", true)
 }

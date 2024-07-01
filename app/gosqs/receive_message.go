@@ -15,12 +15,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// TODO - Admiral-Piett - could we refactor the way we hide messages?  Change data structure to a queue
+// organized by "reveal time" or a map with the key being a timestamp of when it could be shown?
+// Ordered Map - https://github.com/elliotchance/orderedmap
 func ReceiveMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 	requestBody := models.NewReceiveMessageRequest()
 	ok := utils.REQUEST_TRANSFORMER(requestBody, req, false)
 	if !ok {
 		log.Error("Invalid Request - ReceiveMessageV1")
-		return createErrorResponseV1(ErrInvalidParameterValue.Type)
+		return utils.CreateErrorResponseV1("InvalidParameterValue", true)
 	}
 
 	maxNumberOfMessages := requestBody.MaxNumberOfMessages
@@ -38,7 +41,7 @@ func ReceiveMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) 
 	}
 
 	if _, ok := app.SyncQueues.Queues[queueName]; !ok {
-		return createErrorResponseV1("QueueNotFound")
+		return utils.CreateErrorResponseV1("QueueNotFound", true)
 	}
 
 	var messages []*models.ResultMessage
@@ -57,7 +60,7 @@ func ReceiveMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) 
 		_, queueFound := app.SyncQueues.Queues[queueName]
 		if !queueFound {
 			app.SyncQueues.RUnlock()
-			return createErrorResponseV1("QueueNotFound")
+			return utils.CreateErrorResponseV1("QueueNotFound", true)
 		}
 		messageFound := len(app.SyncQueues.Queues[queueName].Messages)-numberOfHiddenMessagesInQueue(*app.SyncQueues.Queues[queueName]) != 0
 		app.SyncQueues.RUnlock()
@@ -67,11 +70,9 @@ func ReceiveMessageV1(req *http.Request) (int, interfaces.AbstractResponseBody) 
 			case <-req.Context().Done():
 				continueTimer.Stop()
 				return http.StatusOK, models.ReceiveMessageResponse{
-					"http://queue.amazonaws.com/doc/2012-11-05/",
-					models.ReceiveMessageResult{},
-					app.ResponseMetadata{
-						RequestId: "00000000-0000-0000-0000-000000000000",
-					},
+					Xmlns:    models.BASE_XMLNS,
+					Result:   models.ReceiveMessageResult{},
+					Metadata: models.BASE_RESPONSE_METADATA,
 				}
 			case <-continueTimer.C:
 				continueTimer.Stop()

@@ -13,6 +13,7 @@ import (
 
 	"github.com/Admiral-Piett/goaws/app"
 	"github.com/Admiral-Piett/goaws/app/common"
+	"github.com/Admiral-Piett/goaws/app/utils"
 )
 
 func TestListTopicshandler_POST_NoTopics(t *testing.T) {
@@ -46,6 +47,10 @@ func TestListTopicshandler_POST_NoTopics(t *testing.T) {
 }
 
 func TestPublishhandler_POST_SendMessage(t *testing.T) {
+	defer func() {
+		utils.ResetApp()
+	}()
+
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
 	// pass 'nil' as the third parameter.
 	req, err := http.NewRequest("POST", "/", nil)
@@ -64,10 +69,6 @@ func TestPublishhandler_POST_SendMessage(t *testing.T) {
 		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
-	defer func() {
-		// Clear topic
-		delete(app.SyncTopics.Topics, "UnitTestTopic1")
-	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -235,6 +236,10 @@ func TestPublishHandler_POST_FilterPolicyPassesTheMessage(t *testing.T) {
 }
 
 func TestSubscribehandler_POST_Success(t *testing.T) {
+	defer func() {
+		utils.ResetApp()
+	}()
+
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
 	// pass 'nil' as the third parameter.
 	req, err := http.NewRequest("POST", "/", nil)
@@ -254,10 +259,6 @@ func TestSubscribehandler_POST_Success(t *testing.T) {
 		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
-	defer func() {
-		// Clear topic
-		delete(app.SyncTopics.Topics, "UnitTestTopic1")
-	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -282,6 +283,10 @@ func TestSubscribehandler_POST_Success(t *testing.T) {
 }
 
 func TestSubscribehandler_HTTP_POST_Success(t *testing.T) {
+	defer func() {
+		utils.ResetApp()
+	}()
+
 	done := make(chan bool)
 
 	r := mux.NewRouter()
@@ -313,10 +318,6 @@ func TestSubscribehandler_HTTP_POST_Success(t *testing.T) {
 		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
-	defer func() {
-		// Clear topic
-		delete(app.SyncTopics.Topics, "UnitTestTopic1")
-	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -350,6 +351,10 @@ func TestSubscribehandler_HTTP_POST_Success(t *testing.T) {
 }
 
 func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
+	defer func() {
+		utils.ResetApp()
+	}()
+
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
 	// pass 'nil' as the third parameter.
 	req, err := http.NewRequest("POST", "/", nil)
@@ -368,10 +373,6 @@ func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
 		Arn:  "arn:aws:sns:local:000000000000:UnitTestTopic1",
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
-	defer func() {
-		// Clear topic
-		delete(app.SyncTopics.Topics, "UnitTestTopic1")
-	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -396,6 +397,9 @@ func TestPublish_No_Queue_Error_handler_POST_Success(t *testing.T) {
 }
 
 func TestListSubscriptionByTopicResponse_No_Owner(t *testing.T) {
+	defer func() {
+		utils.ResetApp()
+	}()
 
 	// set accountID to test value so it can be populated in response
 	app.CurrentEnvironment.AccountID = "100010001000"
@@ -427,10 +431,6 @@ func TestListSubscriptionByTopicResponse_No_Owner(t *testing.T) {
 		},
 	}
 	app.SyncTopics.Topics["UnitTestTopic1"] = topic
-	defer func() {
-		// Clear topic
-		delete(app.SyncTopics.Topics, "UnitTestTopic1")
-	}()
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
@@ -469,6 +469,23 @@ func TestListSubscriptionsResponse_No_Owner(t *testing.T) {
 	form := url.Values{}
 	form.Add("TopicArn", "arn:aws:sns:local:000000000000:UnitTestTopic1")
 	req.PostForm = form
+
+	// Prepare existant topic
+	topic := &app.Topic{
+		Name: "UnitTestTopic1",
+		Arn:  "arn:aws:sns:local:100010001000:UnitTestTopic1",
+		Subscriptions: []*app.Subscription{
+			{
+				TopicArn:        "",
+				Protocol:        "",
+				SubscriptionArn: "",
+				EndPoint:        "",
+				Raw:             false,
+				FilterPolicy:    &app.FilterPolicy{},
+			},
+		},
+	}
+	app.SyncTopics.Topics["UnitTestTopic1"] = topic
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()

@@ -44,10 +44,10 @@ func init() {
 	TOPIC_DATA = make(map[string]*pendingConfirm)
 
 	app.SnsErrors = make(map[string]app.SnsErrorType)
-	app.SnsErrors["TopicNotFound"] = *ErrNonExistentTopic
-	app.SnsErrors["SubscriptionNotFound"] = *ErrNonExistentSubscription
-	app.SnsErrors["TopicExists"] = *ErrTopicAlreadyExists
-	app.SnsErrors[ErrInvalidParameterValue.Type] = *ErrInvalidParameterValue
+	app.SnsErrors["TopicNotFound"] = *models.SnsErrNonExistentTopic
+	app.SnsErrors["SubscriptionNotFound"] = *models.SnsErrNonExistentSubscription
+	app.SnsErrors["TopicExists"] = *models.SnsErrTopicAlreadyExists
+	app.SnsErrors[models.SnsErrInvalidParameterValue.Type] = *models.SnsErrInvalidParameterValue
 	PrivateKEY, PemKEY, _ = createPemFile()
 }
 

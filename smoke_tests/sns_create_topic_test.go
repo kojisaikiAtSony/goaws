@@ -103,7 +103,7 @@ func Test_CreateTopicV1_json_existant_topic(t *testing.T) {
 	assert.Contains(t, r2.Result.Topics.Member[0].TopicArn, topicName)
 }
 
-func Test_CreateTopicV1_json_add_new_topic(t *testing.T) {
+func Test_CreateTopicV1_json_add_multiple_topics(t *testing.T) {
 	server := generateServer()
 	defer func() {
 		server.Close()
@@ -121,7 +121,7 @@ func Test_CreateTopicV1_json_add_new_topic(t *testing.T) {
 	assert.Contains(t, *sdkResponse.TopicArn, topicName)
 	assert.Nil(t, err)
 
-	// Target test: create topic with same name
+	// Target test: create topic with different name
 	topicName2 := "new-topic-2"
 	sdkResponse, err = snsClient.CreateTopic(context.TODO(), &sns.CreateTopicInput{
 		Name: &topicName2,

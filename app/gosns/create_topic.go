@@ -1,6 +1,7 @@
 package gosns
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Admiral-Piett/goaws/app"
@@ -16,7 +17,7 @@ func CreateTopicV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 	ok := utils.REQUEST_TRANSFORMER(requestBody, req, false)
 	if !ok {
 		log.Error("Invalid Request - CreateTopicV1")
-		return createErrorResponseV1(ErrInvalidParameterValue.Type)
+		return createErrorResponseV1(models.SnsErrInvalidParameterValue.Type)
 	}
 
 	topicName := requestBody.Name
@@ -24,11 +25,11 @@ func CreateTopicV1(req *http.Request) (int, interfaces.AbstractResponseBody) {
 	if _, ok := app.SyncTopics.Topics[topicName]; ok {
 		topicArn = app.SyncTopics.Topics[topicName].Arn
 	} else {
-		topicArn = "arn:aws:sns:" + app.CurrentEnvironment.Region + ":" + app.CurrentEnvironment.AccountID + ":" + topicName
+		topicArn = fmt.Sprintf("arn:aws:sns:%s:%s:%s", app.CurrentEnvironment.Region, app.CurrentEnvironment.AccountID, topicName)
 
-		log.Debug("Creating Topic:", topicName)
+		log.Info("Creating Topic:", topicName)
 		topic := &app.Topic{Name: topicName, Arn: topicArn}
-		topic.Subscriptions = make([]*app.Subscription, 0, 0)
+		topic.Subscriptions = make([]*app.Subscription, 0)
 		app.SyncTopics.Lock()
 		app.SyncTopics.Topics[topicName] = topic
 		app.SyncTopics.Unlock()

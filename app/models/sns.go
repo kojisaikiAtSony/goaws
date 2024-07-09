@@ -173,3 +173,15 @@ type SubscriptionAttributes struct {
 	//ReplayPolicy        string                 `json:"ReplayPolicy" schema:"ReplayPolicy"`
 	//ReplayStatus        string                 `json:"ReplayStatus" schema:"ReplayStatus"`
 }
+
+// DeleteTopicV1
+
+func NewDeleteTopicRequest() *DeleteTopicRequest {
+	return &DeleteTopicRequest{}
+}
+
+type DeleteTopicRequest struct {
+	TopicArn string `json:"TopicArn" schema:"TopicArn"`
+}
+
+func (r *DeleteTopicRequest) SetAttributesFromForm(values url.Values) {}

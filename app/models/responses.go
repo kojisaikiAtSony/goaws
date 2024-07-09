@@ -328,3 +328,17 @@ type ConfirmSubscriptionResponse struct {
 	Result   SubscribeResult      `xml:"ConfirmSubscriptionResult"`
 	Metadata app.ResponseMetadata `xml:"ResponseMetadata"`
 }
+
+/*** Delete Topic ***/
+type DeleteTopicResponse struct {
+	Xmlns    string               `xml:"xmlns,attr"`
+	Metadata app.ResponseMetadata `xml:"ResponseMetadata"`
+}
+
+func (r DeleteTopicResponse) GetResult() interface{} {
+	return nil
+}
+
+func (r DeleteTopicResponse) GetRequestId() string {
+	return r.Metadata.RequestId
+}

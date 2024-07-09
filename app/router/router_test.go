@@ -269,8 +269,9 @@ func TestActionHandler_v0_xml(t *testing.T) {
 			"DeleteQueue":             sqs.DeleteQueueV1,
 
 			// SNS
-			"CreateTopic": sns.CreateTopicV1,
 			"Subscribe":   sns.SubscribeV1,
+			"CreateTopic": sns.CreateTopicV1,
+			"DeleteTopic": sns.DeleteTopicV1,
 		}
 		routingTable = map[string]http.HandlerFunc{
 			// SQS
@@ -279,7 +280,6 @@ func TestActionHandler_v0_xml(t *testing.T) {
 
 			// SNS
 			"ListTopics":                sns.ListTopics,
-			"DeleteTopic":               sns.DeleteTopic,
 			"SetSubscriptionAttributes": sns.SetSubscriptionAttributes,
 			"GetSubscriptionAttributes": sns.GetSubscriptionAttributes,
 			"ListSubscriptionsByTopic":  sns.ListSubscriptionsByTopic,
